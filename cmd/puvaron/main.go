@@ -2,28 +2,31 @@ package main
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/bgdn-r/puvaron/pkg/config"
+	"github.com/bgdn-r/puvaron"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 )
 
 func init() {
 	if err := godotenv.Load(); err != nil {
-		log.Fatalf("error: %v\n", err)
+		slog.Error(err.Error())
+		os.Exit(1)
 	}
 }
 
 func main() {
-	cfg, err := config.ReadConfig()
+	cfg, err := puvaron.ReadConfig()
 	if err != nil {
-		log.Fatalf("error: %v\n", err)
+		slog.Error(err.Error())
+		os.Exit(1)
 	}
 
 	r := chi.NewRouter()
@@ -34,10 +37,11 @@ func main() {
 	}
 
 	go func() {
-		log.Printf("server listening on %s\n", srv.Addr)
+		slog.Info(fmt.Sprintf("server listening on %s", srv.Addr))
 		err := srv.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
-			log.Fatalf("error: %v\n", err)
+			slog.Error(err.Error())
+			os.Exit(1)
 		}
 	}()
 
@@ -45,14 +49,15 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	log.Println("shutting down the server...")
+	slog.Info("shutting down the server...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("server forced to shutdown: %v\n", err)
+		slog.Error(err.Error())
+		os.Exit(1)
 	}
 
-	log.Println("server shutdown gracefully.")
+	slog.Info("server shutdown gracefully.")
 }
