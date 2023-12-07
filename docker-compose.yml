@@ -1,0 +1,36 @@
+services:
+  pg:
+    image: postgres
+    networks:
+      - internal
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_SSL=false
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - TZ=Europe/Belgrade
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      start_period: 40s
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-U",
+          "postgres",
+          "-d",
+          "postgres"
+        ]
+
+volumes:
+  pg-data: {}
+
+networks:
+  internal:
+    driver: bridge
