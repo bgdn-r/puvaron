@@ -1,4 +1,4 @@
-package puvaron
+package logger
 
 import (
 	"log/slog"

@@ -1,4 +1,4 @@
-package puvaron
+package config
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ type Config struct {
 	DBUri      string
 }
 
-func ReadConfig() (*Config, error) {
+func Read() (*Config, error) {
 	listenAddr, ok := os.LookupEnv("LISTEN_ADDR")
 	if !ok {
 		return nil, fmt.Errorf("LISTEN_ADDR is required but was not set")

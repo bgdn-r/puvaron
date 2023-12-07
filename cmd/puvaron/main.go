@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -10,9 +11,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bgdn-r/puvaron"
-	"github.com/go-chi/chi/v5"
+	"github.com/bgdn-r/puvaron/pkg/config"
+	"github.com/bgdn-r/puvaron/pkg/router"
 	"github.com/joho/godotenv"
+
+	_ "github.com/bgdn-r/puvaron/pkg/logger"
+	_ "github.com/lib/pq"
 )
 
 func init() {
@@ -23,13 +27,21 @@ func init() {
 }
 
 func main() {
-	cfg, err := puvaron.ReadConfig()
+	cfg, err := config.Read()
 	if err != nil {
 		slog.Error(err.Error())
 		os.Exit(1)
 	}
 
-	r := chi.NewRouter()
+	conn, err := sql.Open("postgres", cfg.DBUri)
+	if err != nil {
+		slog.Error(err.Error())
+		os.Exit(1)
+	}
+
+	_ = conn
+
+	r := router.NewRouter()
 
 	srv := &http.Server{
 		Addr:    cfg.ListenAddr,
