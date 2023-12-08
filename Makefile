@@ -1,10 +1,5 @@
 gocmd := go
-gobuild := $(gocmd) build
-gotest := $(gocmd) test
-goclean := $(gocmd) clean
-gofmt := $(gocmd) fmt
-govendor := $(gocmd) mod vendor
-lintcmd := golangci-lint
+golintcmd := golangci-lint
 dockercmd := docker
 
 bin_name := puvaron
@@ -23,25 +18,28 @@ docker-compose-down:
 	$(dockercmd) compose down
 
 build:
-	$(gobuild) -o $(bin_name) -v *.go
+	$(gocmd) build -o $(bin_name) -v cmd/puvaron/main.go
 
 test:
-	$(gotest) -v ./...
+	$(gocmd) test -v ./...
 
 clean:
-	$(goclean)
+	$(gocmd) clean
 	rm -f $(bin_name)
 
 run: build
 	./$(bin_name)
 
 lint:
-	$(golint) -v ./...
+	$(golintcmd) run ./... -v
 
 fmt:
-	$(gofmt) ./...
+	$(gocmd) fmt ./...
 
 vendor:
-	$(govendor)
+	$(gocmd) mod vendor
 
-.PHONY: all build test clean run lint fmt docker-build docker-compose-up docker-compose-down
+tidy:
+	$(gocmd) mod tidy
+
+.PHONY: all build test clean run lint fmt docker-build docker-compose-up docker-compose-down vendor tidy
