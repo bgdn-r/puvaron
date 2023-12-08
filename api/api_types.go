@@ -1,4 +1,4 @@
-package httputil
+package api
 
 type Response struct {
 	StatusCode int         `json:"status_code"`

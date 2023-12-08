@@ -1,4 +1,4 @@
-package middleware
+package api
 
 import (
 	"log/slog"
@@ -15,12 +15,12 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(wrappedWriter, r)
 
 		duration := time.Since(startTime)
-		slog.Group("http",
+		slog.Info("http", slog.Group("request",
 			slog.String("method", r.Method),
 			slog.String("uri", r.RequestURI),
 			slog.Int("status", wrappedWriter.StatusCode),
 			slog.Duration("duration", duration),
-		)
+		))
 	})
 }
 

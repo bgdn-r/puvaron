@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/bgdn-r/puvaron/api"
 	"github.com/bgdn-r/puvaron/pkg/config"
-	"github.com/bgdn-r/puvaron/pkg/router"
 	"github.com/joho/godotenv"
 
 	_ "github.com/bgdn-r/puvaron/pkg/logger"
@@ -39,13 +39,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	_ = conn
-
-	r := router.NewRouter()
+	puvaronAPI := api.NewPuvaronAPI(conn, cfg)
 
 	srv := &http.Server{
 		Addr:    cfg.ListenAddr,
-		Handler: r,
+		Handler: puvaronAPI.Router,
 	}
 
 	go func() {
